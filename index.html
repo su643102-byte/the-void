@@ -1,227 +1,336 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#050505">
     <title>The Void</title>
 
     <style>
-        body {
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100%;
             margin: 0;
-            height: 100vh;
-            background: radial-gradient(circle, #1a1a1a, black 70%);
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100svh;
+            overflow: hidden;
+            background: radial-gradient(circle, #222 0%, #050505 70%);
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-           font-family: monospace;
-           transition: 5s;
-           background: radial-gradient(circle, #222 0%, #050505 70%);
+            font-family: monospace;
+            text-align: center;
+            padding: 24px;
+            position: relative;
+            transition: 5s;
         }
 
-       h1 {
-    font-size: 100px;
-    letter-spacing: -5px;
-    text-shadow: 0 0 20px white;
-    animation: pulse 2s infinite alternate;
-    transition: 2s;
-}
+        #title {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0;
+            font-size: clamp(2.5rem, 8vw, 100px);
+            line-height: 0.95;
+            letter-spacing: clamp(-2px, -0.4vw, -5px);
+            text-shadow: 0 0 20px white;
+            animation: pulse 2s infinite alternate;
+            transition: 2s;
+            position: relative;
+            z-index: 2;
+            overflow-wrap: break-word;
+        }
 
-@keyframes pulse {
-    from {
-        text-shadow: 0 0 10px white;
-    }
+        @keyframes pulse {
+            from {
+                text-shadow: 0 0 10px white;
+            }
+            to {
+                text-shadow: 0 0 40px white;
+            }
+        }
 
-    to {
-        text-shadow: 0 0 40px white;
-    }
-}
-h1:hover {
-    letter-spacing: 5px;
-    text-shadow:
-        0 0 10px white,
-        0 0 30px white,
-        0 0 60px white;
-}
-.subtitle {
-    font-size: 16px;
-    letter-spacing: 8px;
-    text-transform: uppercase;
-    opacity: 0.5;
-}
-button {
-    margin-top: 30px;
-    padding: 15px 40px;
-    background: transparent;
-    color: white;
-    border: 1px solid white;
-    font-family: monospace;
-    letter-spacing: 5px;
-    cursor: pointer;
-    transition: 0.3s;
-}
+        #title:hover {
+            letter-spacing: clamp(1px, 0.4vw, 5px);
+            text-shadow:
+                0 0 10px white,
+                0 0 30px white,
+                0 0 60px white;
+        }
 
-button:hover {
-    background: white;
-    color: black;
-    box-shadow: 0 0 30px white;
-}
-#secret {
-    font-size: 50px;
-    letter-spacing: 10px;
-    text-shadow: 0 0 20px white;
-    transition: 2s;
-    animation: secretPulse 2s infinite alternate;
-    transform: translateY(100px) scale(0.5);
-}
-@keyframes secretPulse {
-    from {
-        text-shadow: 0 0 10px white;
-    }
+        .subtitle {
+            max-width: 90vw;
+            margin: 20px 0 0;
+            font-size: clamp(0.75rem, 1.5vw, 16px);
+            line-height: 1.4;
+            letter-spacing: clamp(2px, 0.8vw, 8px);
+            text-transform: uppercase;
+            opacity: 0.5;
+            position: relative;
+            z-index: 2;
+        }
 
-    to {
-        text-shadow: 0 0 40px white;
-    }
-}
-#portal {
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    background: radial-gradient(circle, #000 0%, #111 40%, transparent 70%);
-    box-shadow:
-        0 0 20px white,
-        0 0 60px white,
-        0 0 120px #555;
-    position: absolute;
-    opacity: 0;
-    transition: 2s;
-    pointer-events: none;
-    animation: portalSpin 8s linear infinite;
-}
+        #enterBtn {
+            margin-top: clamp(24px, 4vh, 30px);
+            padding: 14px clamp(24px, 5vw, 40px);
+            min-width: 150px;
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            font-family: monospace;
+            font-size: 14px;
+            letter-spacing: clamp(2px, 0.6vw, 5px);
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            z-index: 5;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-#portalInner {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    border: 1px solid white;
-    box-shadow:
-        0 0 15px white,
-        0 0 40px #555;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-}
+        #enterBtn:hover,
+        #enterBtn:focus-visible {
+            background: white;
+            color: black;
+            box-shadow: 0 0 30px white;
+            outline: none;
+        }
 
-@keyframes portalSpin {
-    from {
-        transform: rotate(0deg) scale(1);
-    }
+        #enterBtn:active {
+            transform: scale(0.96);
+        }
 
-    to {
-        transform: rotate(360deg) scale(1.15);
-    }
-}
-.void-transition {
-    animation: voidExit 1.2s ease forwards;
-}
+        #secret {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0;
+            font-size: clamp(1.8rem, 5vw, 50px);
+            line-height: 1.1;
+            letter-spacing: clamp(3px, 1vw, 10px);
+            text-shadow: 0 0 20px white;
+            transition: 2s;
+            animation: secretPulse 2s infinite alternate;
+            transform: translateY(100px) scale(0.5);
+            overflow-wrap: break-word;
+            position: relative;
+            z-index: 3;
+        }
 
-@keyframes voidExit {
-    0% {
-        opacity: 1;
-        filter: blur(0);
-    }
+        @keyframes secretPulse {
+            from {
+                text-shadow: 0 0 10px white;
+            }
+            to {
+                text-shadow: 0 0 40px white;
+            }
+        }
 
-    60% {
-        opacity: 0.7;
-        filter: blur(4px);
-    }
+        #portal {
+            width: min(300px, 55vw);
+            height: min(300px, 55vw);
+            min-width: 160px;
+            min-height: 160px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            background: radial-gradient(circle, #000 0%, #111 40%, transparent 70%);
+            box-shadow:
+                0 0 20px white,
+                0 0 60px white,
+                0 0 120px #555;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: 2s;
+            pointer-events: none;
+            animation: portalSpin 8s linear infinite;
+            z-index: 1;
+        }
 
-    100% {
-        opacity: 0;
-        filter: blur(12px);
-    }
-}
+        #portalInner {
+            width: 66.67%;
+            height: 66.67%;
+            border-radius: 50%;
+            border: 1px solid white;
+            box-shadow:
+                0 0 15px white,
+                0 0 40px #555;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
 
+        @keyframes portalSpin {
+            from {
+                transform: translate(-50%, -50%) rotate(0deg) scale(1);
+            }
+            to {
+                transform: translate(-50%, -50%) rotate(360deg) scale(1.15);
+            }
+        }
+
+        .void-transition {
+            animation: voidExit 1.2s ease forwards;
+        }
+
+        @keyframes voidExit {
+            0% {
+                opacity: 1;
+                filter: blur(0);
+            }
+            60% {
+                opacity: 0.7;
+                filter: blur(4px);
+            }
+            100% {
+                opacity: 0;
+                filter: blur(12px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 14px;
+            }
+
+            #title {
+                max-width: 100%;
+                font-size: clamp(2.2rem, 11vw, 4rem);
+                line-height: 1;
+                letter-spacing: -2px;
+            }
+
+            #title:hover {
+                letter-spacing: 0;
+            }
+
+            .subtitle {
+                margin-top: 18px;
+                font-size: 11px;
+                letter-spacing: 3px;
+            }
+
+            #enterBtn {
+                margin-top: 26px;
+                padding: 13px 26px;
+                min-width: 140px;
+                font-size: 12px;
+                letter-spacing: 3px;
+            }
+
+            #portal {
+                width: min(280px, 72vw);
+                height: min(280px, 72vw);
+            }
+
+            #secret {
+                font-size: clamp(1.5rem, 8vw, 2.5rem);
+                letter-spacing: 4px;
+            }
+        }
+
+        @media (min-width: 601px) and (max-width: 1024px) {
+            body {
+                padding: 30px;
+            }
+
+            #title {
+                font-size: clamp(3.5rem, 9vw, 6rem);
+            }
+
+            #portal {
+                width: min(300px, 45vw);
+                height: min(300px, 45vw);
+            }
+        }
+
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                padding: 12px 20px;
+            }
+
+            #title {
+                font-size: clamp(2rem, 9vh, 5rem);
+            }
+
+            .subtitle {
+                margin-top: 10px;
+            }
+
+            #enterBtn {
+                margin-top: 14px;
+            }
+
+            #portal {
+                width: min(230px, 55vh);
+                height: min(230px, 55vh);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 
 <body>
-   <div id="portal">
-    <div id="portalInner"></div>
-</div>
+    <div id="portal" aria-hidden="true">
+        <div id="portalInner"></div>
+    </div>
 
-  <h1 id="title">YOU SHOULDN'T BE HERE.</h1>
+    <h1 id="title">YOU SHOULDN'T BE HERE.</h1>
 
- <p id="subtitle" class="subtitle">Something is waiting.</p>
-<button id="enterBtn" type="button" onclick="window.location.href='ha.html'">
-    ENTER
-</button>
+    <p id="subtitle" class="subtitle">Something is waiting.</p>
 
-<script>
-function enterVoid() {
-    document.body.classList.add("void-transition");
+    <button id="enterBtn" type="button">ENTER</button>
 
-    setTimeout(() => {
-        window.location.href = "quantum-cosmos.html";
-    }, 1200);
-}
-</script>
-<script>
-document.getElementById("enterCosmos").addEventListener("click", () => {
-    document.body.classList.add("cosmos-transition");
+    <h2 id="secret" style="opacity: 0;">WELCOME TO THE VOID</h2>
 
-    setTimeout(() => {
-        window.location.href = "quantum.html";
-    }, 1200);
-});
-</script>
+    <script>
+        const enterBtn = document.getElementById("enterBtn");
+        const title = document.getElementById("title");
+        const subtitle = document.getElementById("subtitle");
+        const secret = document.getElementById("secret");
+        const portal = document.getElementById("portal");
 
-<style>
-.cosmos-transition {
-    animation: voidCollapse 1.2s ease-in forwards;
-}
+        function enterVoid() {
+            document.body.style.background =
+                "radial-gradient(circle, #222 0%, #050505 70%)";
+            document.body.style.color = "white";
 
-@keyframes voidCollapse {
-    0% {
-        opacity: 1;
-        filter: blur(0);
-    }
+            title.style.opacity = "0";
+            subtitle.style.opacity = "0";
+            enterBtn.style.opacity = "0";
 
-    60% {
-        opacity: 0.7;
-        filter: blur(5px);
-    }
+            secret.style.opacity = "1";
+            secret.style.transform = "translateY(0) scale(1)";
 
-    100% {
-        opacity: 0;
-        filter: blur(20px);
-    }
-}
-</style>
- <h2 id="secret" style="opacity: 0;">WELCOME TO THE VOID</h2>
+            portal.style.opacity = "1";
 
-<script>
-  function enterVoid() {
-    document.body.style.background = "radial-gradient(circle, #222 0%, #050505 70%)";
-    document.body.style.color = "white";
+            document.body.classList.add("void-transition");
 
-    document.getElementById("title").style.opacity = "0";
-    document.getElementById("subtitle").style.opacity = "0";
-    document.getElementById("enterButton").style.opacity = "0";
+            setTimeout(() => {
+                window.location.href = "ha.html";
+            }, 1200);
+        }
 
-    document.getElementById("secret").style.opacity = "1";
-    document.getElementById("secret").style.transform = "translateY(0) scale(1)";
-
-    document.getElementById("portal").style.opacity = "1";
-}
-
-    
-</script>
-
-</body>
-</html>
-
+        enterBtn.addEventListener("click", enterVoid);
+    </script>
 </body>
 </html>
