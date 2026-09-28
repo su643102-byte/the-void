@@ -1,0 +1,3184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>THE VOID // HABIB HUSSEIN</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background:
+                radial-gradient(
+                    circle at 50% 45%,
+                    rgba(100, 35, 180, 0.22) 0%,
+                    rgba(35, 8, 65, 0.45) 28%,
+                    rgba(5, 2, 15, 0.85) 62%,
+                    #010105 100%
+                );
+
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+
+            animation: cosmosAppear 2s ease-out forwards;
+        }
+
+        @keyframes cosmosAppear {
+            from {
+                opacity: 0;
+                filter: blur(15px);
+            }
+
+            to {
+                opacity: 1;
+                filter: blur(0);
+            }
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* =========================================
+           ATMOSPHERE
+        ========================================= */
+
+        #void-atmosphere {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+
+            background:
+                radial-gradient(
+                    circle at 50% 50%,
+                    transparent 20%,
+                    rgba(90, 20, 150, 0.06) 45%,
+                    rgba(0, 0, 0, 0.5) 100%
+                );
+
+            animation: atmospherePulse 7s ease-in-out infinite;
+        }
+
+        @keyframes atmospherePulse {
+            0%, 100% {
+                opacity: 0.65;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        #void-vignette {
+            position: fixed;
+            inset: 0;
+            z-index: 4;
+            pointer-events: none;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    transparent 25%,
+                    rgba(0, 0, 0, 0.18) 55%,
+                    rgba(0, 0, 0, 0.75) 100%
+                );
+        }
+
+        /* =========================================
+           WEBGL
+        ========================================= */
+
+        #webgl-container {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* =========================================
+           GLASS UI
+        ========================================= */
+
+        .glass-panel {
+            background: rgba(8, 3, 18, 0.52);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            border: 1px solid rgba(170, 90, 255, 0.16);
+
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.65),
+                inset 0 0 20px rgba(130, 50, 255, 0.05);
+        }
+
+        .glass-btn {
+            background: rgba(20, 8, 35, 0.38);
+
+            border: 1px solid rgba(170, 90, 255, 0.22);
+
+            transition:
+                all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-btn:hover {
+            background: rgba(130, 40, 220, 0.18);
+
+            border-color: rgba(220, 130, 255, 0.7);
+
+            box-shadow:
+                0 0 20px rgba(160, 60, 255, 0.35),
+                inset 0 0 12px rgba(190, 70, 255, 0.12);
+
+            transform: translateY(-2px);
+        }
+
+        .glass-btn.active {
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(120, 40, 220, 0.35),
+                    rgba(255, 30, 160, 0.16)
+                );
+
+            border-color: rgba(220, 130, 255, 0.85);
+
+            box-shadow:
+                0 0 25px rgba(150, 60, 255, 0.45),
+                inset 0 0 15px rgba(220, 70, 255, 0.1);
+        }
+
+        /* =========================================
+           TITLE
+        ========================================= */
+
+        .cosmos-title {
+            letter-spacing: 0.35em;
+
+            text-shadow:
+                0 0 5px rgba(255,255,255,0.8),
+                0 0 15px rgba(170,80,255,0.8),
+                0 0 35px rgba(255,40,180,0.45);
+
+            animation: titlePulse 4s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% {
+                opacity: 0.78;
+
+                text-shadow:
+                    0 0 5px rgba(255,255,255,0.7),
+                    0 0 15px rgba(150,80,255,0.6);
+            }
+
+            50% {
+                opacity: 1;
+
+                text-shadow:
+                    0 0 8px white,
+                    0 0 25px rgba(190,90,255,0.9),
+                    0 0 55px rgba(255,40,180,0.55);
+            }
+        }
+
+        /* =========================================
+           GLOW TEXT
+        ========================================= */
+
+        .glow-text {
+            text-shadow:
+                0 0 10px rgba(180, 90, 255, 0.65),
+                0 0 25px rgba(130, 50, 255, 0.4);
+        }
+
+        .glow-text-pink {
+            text-shadow:
+                0 0 10px rgba(255, 0, 128, 0.6),
+                0 0 20px rgba(255, 0, 128, 0.4);
+        }
+
+        .pulse-bar {
+            transition: height 0.05s ease;
+        }
+
+        /* =========================================
+           INTRO SCREEN
+        ========================================= */
+
+        #cosmos-intro {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(80, 20, 130, 0.18),
+                    #020106 55%,
+                    #000000 100%
+                );
+
+            pointer-events: none;
+
+            animation: introFadeOut 1.5s ease 7.8s forwards;
+        }
+
+        .intro-opening {
+            position: absolute;
+
+            font-family: 'Orbitron', sans-serif;
+
+            font-size: clamp(16px, 2.4vw, 30px);
+
+            letter-spacing: 0.45em;
+
+            color: white;
+
+            text-align: center;
+
+            text-shadow:
+                0 0 10px white,
+                0 0 25px rgba(150,80,255,0.9),
+                0 0 55px rgba(100,40,255,0.7);
+
+            animation: openingSequence 3.2s ease forwards;
+        }
+
+        .intro-welcome {
+            position: absolute;
+
+            text-align: center;
+
+            font-family: 'Orbitron', sans-serif;
+
+            font-size: clamp(20px, 3vw, 42px);
+
+            letter-spacing: 0.25em;
+
+            color: white;
+
+            opacity: 0;
+
+            text-shadow:
+                0 0 8px white,
+                0 0 20px rgba(170,90,255,0.9),
+                0 0 45px rgba(255,40,180,0.5);
+
+            animation: welcomeSequence 4s ease 3s forwards;
+        }
+
+        .intro-welcome span {
+            display: block;
+
+            margin-top: 18px;
+
+            font-family: 'Rajdhani', sans-serif;
+
+            font-size: clamp(12px, 1.3vw, 17px);
+
+            letter-spacing: 0.45em;
+
+            color: rgba(225, 205, 255, 0.78);
+
+            text-shadow:
+                0 0 10px rgba(150,80,255,0.7);
+        }
+
+        @keyframes openingSequence {
+
+            0% {
+                opacity: 0;
+                transform: scale(0.92);
+                filter: blur(10px);
+            }
+
+            18% {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0);
+            }
+
+            68% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(1.06);
+                filter: blur(7px);
+            }
+        }
+
+        @keyframes welcomeSequence {
+
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+                filter: blur(12px);
+            }
+
+            22% {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0);
+            }
+
+            70% {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(1.05);
+                filter: blur(8px);
+            }
+        }
+
+        @keyframes introFadeOut {
+
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+
+        }
+
+        /* =========================================
+           DAT.GUI
+        ========================================= */
+
+        #void-gui-zone {
+            position: fixed;
+
+            top: 78px;
+            right: 18px;
+
+            width: 280px;
+
+            z-index: 300;
+
+            opacity: 0.06;
+
+            transform: translateX(8px);
+
+            transition:
+                opacity 0.6s ease,
+                transform 0.6s ease;
+        }
+
+        #void-gui-zone:hover,
+        #void-gui-zone:focus-within {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .dg.main {
+            font-family: 'Rajdhani', sans-serif !important;
+
+            border-radius: 12px !important;
+
+            overflow: hidden !important;
+
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.8),
+                0 0 25px rgba(130,50,255,0.15) !important;
+
+            border:
+                1px solid rgba(170,90,255,0.3) !important;
+        }
+
+        .dg .close-button {
+            background-color:
+                rgba(10, 4, 20, 0.9) !important;
+
+            text-transform: uppercase;
+
+            letter-spacing: 2px;
+        }
+
+        .dg li:not(.folder) {
+            background:
+                rgba(15, 5, 30, 0.75) !important;
+
+            border-bottom:
+                1px solid rgba(255,255,255,0.05) !important;
+        }
+
+        .dg .property-name {
+            font-weight: 600 !important;
+
+            color: #c58cff !important;
+
+            text-shadow:
+                0 0 5px rgba(170,80,255,0.35);
+        }
+
+        /* =========================================
+           SCROLLBAR
+        ========================================= */
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background:
+                rgba(170,80,255,0.4);
+
+            border-radius: 2px;
+        }
+
+        /* =========================================
+           SCREEN SHAKE
+        ========================================= */
+
+        .screen-shake {
+            animation:
+                shake 0.35s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+
+            10%, 90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%, 80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%, 50%, 70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%, 60% {
+                transform: translate3d(4px, 0, 0);
+            }
+
+        }
+    </style>
+</head>
+
+<body class="select-none overflow-hidden">
+
+    <!-- =========================================
+         INTRO
+    ========================================= -->
+
+    <div id="cosmos-intro">
+
+        <div class="intro-opening">
+            THE VOID IS OPENING...
+        </div>
+
+        <div class="intro-welcome">
+            WELCOME TO THE VOID
+
+            <span>
+                CREATED BY HABIB HUSSEIN
+            </span>
+        </div>
+
+    </div>
+
+
+    <!-- ATMOSPHERE -->
+
+    <div id="void-atmosphere"></div>
+
+    <div id="void-vignette"></div>
+
+
+    <!-- WEBGL -->
+
+    <div id="webgl-container"></div>
+
+
+    <!-- =========================================
+         UI
+    ========================================= -->
+
+    <div id="ui-layer"
+         class="relative z-10 w-full h-full pointer-events-none flex flex-col justify-between p-6">
+
+        <!-- TOP HUD -->
+
+        <header class="flex justify-between items-start w-full">
+
+            <div class="pointer-events-auto">
+
+                <div class="flex items-center gap-3">
+
+                    <div
+                        class="w-3 h-8 rounded-full
+                               shadow-[0_0_18px_#a855f7]"
+                        style="
+                            background:
+                            linear-gradient(
+                                to bottom,
+                                #c084fc,
+                                #a855f7,
+                                #ec4899
+                            );
+                        ">
+                    </div>
+
+                    <div>
+
+                        <h1
+                            class="cosmos-title
+                                   font-orbitron
+                                   text-2xl
+                                   md:text-3xl
+                                   font-black
+                                   tracking-wider
+                                   text-transparent
+                                   bg-clip-text
+                                   bg-gradient-to-r
+                                   from-white
+                                   via-purple-200
+                                   to-pink-400">
+
+                            THE VOID
+
+                        </h1>
+
+                        <p
+                            class="text-xs
+                                   tracking-[0.28em]
+                                   text-purple-300
+                                   opacity-80
+                                   uppercase
+                                   font-semibold">
+
+                            CREATED BY HABIB HUSSEIN
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- TOP RIGHT -->
+
+            <div
+                class="pointer-events-auto
+                       flex items-center gap-3">
+
+                <button
+                    id="audio-toggle-btn"
+                    class="glass-btn
+                           px-4
+                           py-2.5
+                           rounded-xl
+                           font-orbitron
+                           text-xs
+                           font-semibold
+                           tracking-wider
+                           text-purple-300
+                           flex
+                           items-center
+                           gap-2">
+
+                    <i
+                        class="fa-solid
+                               fa-volume-xmark
+                               text-pink-500"
+                        id="audio-icon">
+                    </i>
+
+                    <span id="audio-status">
+                        AUDIO SYNTH: OFF
+                    </span>
+
+                </button>
+
+
+                <button
+                    id="fullscreen-btn"
+                    class="glass-btn
+                           p-2.5
+                           rounded-xl
+                           text-purple-300
+                           hover:text-white">
+
+                    <i
+                        class="fa-solid
+                               fa-expand
+                               text-lg">
+                    </i>
+
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================================
+             CENTER HINT
+        ========================================= -->
+
+        <div
+            id="center-hint"
+            class="absolute
+                   top-1/2
+                   left-1/2
+                   -translate-x-1/2
+                   -translate-y-1/2
+                   text-center
+                   pointer-events-none
+                   transition-opacity
+                   duration-1000">
+
+            <p
+                class="font-orbitron
+                       text-xs
+                       md:text-sm
+                       tracking-[0.3em]
+                       text-purple-300
+                       opacity-75
+                       uppercase
+                       mb-2">
+
+                [ Click / Tap anywhere to trigger shockwave ]
+
+            </p>
+
+            <p
+                class="text-xs
+                       text-gray-400
+                       tracking-widest">
+
+                DRAG TO ROTATE // SCROLL TO ZOOM
+
+            </p>
+
+        </div>
+
+
+        <!-- =========================================
+             BOTTOM HUD
+        ========================================= -->
+
+        <footer
+            class="flex
+                   flex-col
+                   md:flex-row
+                   justify-between
+                   items-end
+                   gap-6
+                   w-full">
+
+            <!-- MODES -->
+
+            <div
+                class="pointer-events-auto
+                       glass-panel
+                       p-2
+                       md:p-3
+                       rounded-2xl
+                       flex
+                       flex-wrap
+                       gap-2
+                       max-w-full
+                       md:max-w-xl">
+
+                <button
+                    data-mode="GALAXY"
+                    class="mode-btn
+                           glass-btn
+                           active
+                           px-4
+                           py-2
+                           rounded-xl
+                           text-xs
+                           font-orbitron
+                           font-bold
+                           tracking-wider
+                           text-purple-300
+                           flex
+                           items-center
+                           gap-2">
+
+                    <i class="fa-solid fa-bahai"></i>
+
+                    GALAXY
+
+                </button>
+
+
+                <button
+                    data-mode="VORTEX"
+                    class="mode-btn
+                           glass-btn
+                           px-4
+                           py-2
+                           rounded-xl
+                           text-xs
+                           font-orbitron
+                           font-bold
+                           tracking-wider
+                           text-purple-300
+                           flex
+                           items-center
+                           gap-2">
+
+                    <i class="fa-solid fa-tornado"></i>
+
+                    CYBER VORTEX
+
+                </button>
+
+
+                <button
+                    data-mode="DNA"
+                    class="mode-btn
+                           glass-btn
+                           px-4
+                           py-2
+                           rounded-xl
+                           text-xs
+                           font-orbitron
+                           font-bold
+                           tracking-wider
+                           text-purple-300
+                           flex
+                           items-center
+                           gap-2">
+
+                    <i class="fa-solid fa-dna"></i>
+
+                    DNA HELIX
+
+                </button>
+
+
+                <button
+                    data-mode="MATRIX"
+                    class="mode-btn
+                           glass-btn
+                           px-4
+                           py-2
+                           rounded-xl
+                           text-xs
+                           font-orbitron
+                           font-bold
+                           tracking-wider
+                           text-purple-300
+                           flex
+                           items-center
+                           gap-2">
+
+                    <i class="fa-solid fa-cubes"></i>
+
+                    QUANTUM CUBE
+
+                </button>
+
+
+                <button
+                    data-mode="HYPERSPACE"
+                    class="mode-btn
+                           glass-btn
+                           px-4
+                           py-2
+                           rounded-xl
+                           text-xs
+                           font-orbitron
+                           font-bold
+                           tracking-wider
+                           text-purple-300
+                           flex
+                           items-center
+                           gap-2">
+
+                    <i class="fa-solid fa-infinity"></i>
+
+                    HYPERSPACE
+
+                </button>
+
+            </div>
+
+
+            <!-- AUDIO HUD -->
+
+            <div
+                class="pointer-events-auto
+                       glass-panel
+                       p-3
+                       rounded-2xl
+                       flex
+                       items-center
+                       gap-4
+                       w-full
+                       md:w-auto">
+
+                <div
+                    class="flex
+                           items-end
+                           gap-1
+                           h-8
+                           w-28
+                           px-1
+                           justify-center
+                           border-r
+                           border-purple-500/20
+                           pr-4">
+
+                    <div
+                        class="pulse-bar
+                               w-1.5
+                               bg-purple-400
+                               rounded-t
+                               h-2">
+                    </div>
+
+                    <div
+                        class="pulse-bar
+                               w-1.5
+                               bg-purple-300
+                               rounded-t
+                               h-4">
+                    </div>
+
+                    <div
+                        class="pulse-bar
+                               w-1.5
+                               bg-pink-500
+                               rounded-t
+                               h-6">
+                    </div>
+
+                    <div
+                        class="pulse-bar
+                               w-1.5
+                               bg-purple-400
+                               rounded-t
+                               h-3">
+                    </div>
+
+                    <div
+                        class="pulse-bar
+                               w-1.5
+                               bg-violet-400
+                               rounded-t
+                               h-5">
+                    </div>
+
+                    <div
+                        class="pulse-bar
+                               w-1.5
+                               bg-pink-400
+                               rounded-t
+                               h-2">
+                    </div>
+
+                </div>
+
+
+                <div class="flex flex-col">
+
+                    <div
+                        class="flex
+                               justify-between
+                               gap-4
+                               text-[10px]
+                               font-orbitron
+                               text-purple-300">
+
+                        <span>
+
+                            FPS:
+
+                            <span
+                                id="fps-counter"
+                                class="text-white font-bold">
+
+                                60
+
+                            </span>
+
+                        </span>
+
+
+                        <span>
+
+                            PARTICLES:
+
+                            <span
+                                id="particle-count"
+                                class="text-white font-bold">
+
+                                60,000
+
+                            </span>
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="text-[10px]
+                               text-gray-400
+                               font-semibold
+                               tracking-wider
+                               mt-1">
+
+                        ENERGY FIELD:
+
+                        <span
+                            id="energy-level"
+                            class="text-pink-400 font-bold">
+
+                            STABLE
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </footer>
+
+    </div>
+
+
+<script>
+
+    /*
+     * THE VOID
+     * Created by Habib Hussein
+     * Interactive 3D Particle Experience
+     */
+
+
+    const CONFIG = {
+
+        particleCount: 60000,
+
+        particleSize: 2.2,
+
+        morphSpeed: 0.03,
+
+        swirlSpeed: 0.4,
+
+        turbulence: 0.25,
+
+        colorPalette: 'NEON_CYBER',
+
+        forceRadius: 180,
+
+        repulsionPower: 8.0,
+
+        audioReactive: false,
+
+        audioSensitivity: 1.8
+
+    };
+
+
+    let scene;
+    let camera;
+    let renderer;
+
+    let particleGeometry;
+    let particleMaterial;
+    let particleSystem;
+
+    let particlePositions;
+    let targetPositions;
+    let particleVelocities;
+    let particleColors;
+
+    let clock = new THREE.Clock();
+
+
+    const mouse =
+        new THREE.Vector2(-9999, -9999);
+
+    const targetMouse =
+        new THREE.Vector2(-9999, -9999);
+
+
+    let isMouseDown = false;
+
+    let shockwaveTime = 100.0;
+
+    let shockwaveCenter =
+        new THREE.Vector3();
+
+
+    // AUDIO
+
+    let audioCtx = null;
+    let masterGain = null;
+    let filterNode = null;
+    let analyser = null;
+    let audioDataArray = null;
+
+
+    let currentMode = 'GALAXY';
+
+
+    // =========================================
+    // COLOR PALETTES
+    // =========================================
+
+    const PALETTES = {
+
+        NEON_CYBER: [
+
+            new THREE.Color('#b44cff'),
+            new THREE.Color('#ff3cac'),
+            new THREE.Color('#6d28d9'),
+            new THREE.Color('#8b5cf6')
+
+        ],
+
+        SOLAR_FIRE: [
+
+            new THREE.Color('#ff3300'),
+            new THREE.Color('#ffaa00'),
+            new THREE.Color('#ff0055'),
+            new THREE.Color('#ffffaa')
+
+        ],
+
+        DEEP_SPACE: [
+
+            new THREE.Color('#4100f5'),
+            new THREE.Color('#00d4ff'),
+            new THREE.Color('#ffffff'),
+            new THREE.Color('#110038')
+
+        ],
+
+        EMERALD_QUANTUM: [
+
+            new THREE.Color('#00ff88'),
+            new THREE.Color('#00bfff'),
+            new THREE.Color('#aaff00'),
+            new THREE.Color('#003322')
+
+        ]
+
+    };
+
+
+    // =========================================
+    // ENGINE
+    // =========================================
+
+    function initEngine() {
+
+        const container =
+            document.getElementById(
+                'webgl-container'
+            );
+
+
+        scene = new THREE.Scene();
+
+
+        scene.fog =
+            new THREE.FogExp2(
+                0x030108,
+                0.0012
+            );
+
+
+        camera =
+            new THREE.PerspectiveCamera(
+                60,
+                window.innerWidth /
+                window.innerHeight,
+                1,
+                3000
+            );
+
+
+        camera.position.set(
+            0,
+            0,
+            450
+        );
+
+
+        renderer =
+            new THREE.WebGLRenderer({
+
+                antialias: true,
+
+                alpha: false,
+
+                powerPreference:
+                    "high-performance"
+
+            });
+
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+
+        renderer.setPixelRatio(
+            Math.min(
+                window.devicePixelRatio,
+                2
+            )
+        );
+
+
+        renderer.setClearColor(
+            scene.fog.color
+        );
+
+
+        container.appendChild(
+            renderer.domElement
+        );
+
+
+        createParticleSystem();
+
+        setupGUI();
+
+        setupEventListeners();
+
+        animate();
+
+
+        setTimeout(() => {
+
+            const hint =
+                document.getElementById(
+                    'center-hint'
+                );
+
+            if (hint) {
+
+                hint.style.opacity = '0';
+
+            }
+
+        }, 6000);
+
+    }
+
+
+    // =========================================
+    // PARTICLES
+    // =========================================
+
+    function createParticleSystem() {
+
+        const count =
+            CONFIG.particleCount;
+
+
+        particleGeometry =
+            new THREE.BufferGeometry();
+
+
+        particlePositions =
+            new Float32Array(
+                count * 3
+            );
+
+
+        targetPositions =
+            new Float32Array(
+                count * 3
+            );
+
+
+        particleVelocities =
+            new Float32Array(
+                count * 3
+            );
+
+
+        particleColors =
+            new Float32Array(
+                count * 3
+            );
+
+
+        const sizes =
+            new Float32Array(count);
+
+
+        generateGalaxyPositions(
+            targetPositions
+        );
+
+
+        for (
+            let i = 0;
+            i < count * 3;
+            i++
+        ) {
+
+            particlePositions[i] =
+                (Math.random() - 0.5) *
+                1000;
+
+            particleVelocities[i] = 0;
+
+        }
+
+
+        const palette =
+            PALETTES[
+                CONFIG.colorPalette
+            ];
+
+
+        for (
+            let i = 0;
+            i < count;
+            i++
+        ) {
+
+            const color =
+                palette[
+                    Math.floor(
+                        Math.random() *
+                        palette.length
+                    )
+                ];
+
+
+            particleColors[i * 3] =
+                color.r;
+
+            particleColors[i * 3 + 1] =
+                color.g;
+
+            particleColors[i * 3 + 2] =
+                color.b;
+
+
+            sizes[i] =
+                Math.random() *
+                0.8 +
+                0.5;
+
+        }
+
+
+        particleGeometry.setAttribute(
+            'position',
+            new THREE.BufferAttribute(
+                particlePositions,
+                3
+            )
+        );
+
+
+        particleGeometry.setAttribute(
+            'targetPosition',
+            new THREE.BufferAttribute(
+                targetPositions,
+                3
+            )
+        );
+
+
+        particleGeometry.setAttribute(
+            'customColor',
+            new THREE.BufferAttribute(
+                particleColors,
+                3
+            )
+        );
+
+
+        particleGeometry.setAttribute(
+            'size',
+            new THREE.BufferAttribute(
+                sizes,
+                1
+            )
+        );
+
+
+        particleMaterial =
+            new THREE.ShaderMaterial({
+
+                uniforms: {
+
+                    uTime: {
+                        value: 0
+                    },
+
+                    uSize: {
+                        value:
+                            CONFIG.particleSize
+                    },
+
+                    uShockwaveTime: {
+                        value: 100.0
+                    },
+
+                    uShockwaveCenter: {
+                        value:
+                            new THREE.Vector3()
+                    },
+
+                    uAudioEnergy: {
+                        value: 0
+                    }
+
+                },
+
+
+                vertexShader: `
+
+                    uniform float uTime;
+                    uniform float uSize;
+                    uniform float uShockwaveTime;
+                    uniform vec3 uShockwaveCenter;
+                    uniform float uAudioEnergy;
+
+                    attribute vec3 customColor;
+                    attribute vec3 targetPosition;
+                    attribute float size;
+
+                    varying vec3 vColor;
+
+                    void main() {
+
+                        vColor = customColor;
+
+                        vec3 pos = position;
+
+                        float distToShockwave =
+                            distance(
+                                pos,
+                                uShockwaveCenter
+                            );
+
+                        float waveWidth = 80.0;
+
+                        float waveRadius =
+                            uShockwaveTime *
+                            600.0;
+
+                        if (
+                            abs(
+                                distToShockwave -
+                                waveRadius
+                            ) < waveWidth
+                            &&
+                            uShockwaveTime < 1.5
+                        ) {
+
+                            vec3 dir =
+                                normalize(
+                                    pos -
+                                    uShockwaveCenter
+                                );
+
+                            float pushStrength =
+                                (
+                                    1.0 -
+                                    abs(
+                                        distToShockwave -
+                                        waveRadius
+                                    ) /
+                                    waveWidth
+                                ) *
+                                40.0;
+
+                            pos +=
+                                dir *
+                                pushStrength;
+
+                        }
+
+                        vec4 mvPosition =
+                            modelViewMatrix *
+                            vec4(pos, 1.0);
+
+                        gl_Position =
+                            projectionMatrix *
+                            mvPosition;
+
+                        float dynamicSize =
+                            uSize *
+                            size *
+                            (
+                                1.0 +
+                                uAudioEnergy *
+                                0.4
+                            );
+
+                        gl_PointSize =
+                            dynamicSize *
+                            (
+                                300.0 /
+                                -mvPosition.z
+                            );
+
+                    }
+
+                `,
+
+
+                fragmentShader: `
+
+                    varying vec3 vColor;
+
+                    void main() {
+
+                        float dist =
+                            length(
+                                gl_PointCoord -
+                                vec2(0.5)
+                            );
+
+                        if (dist > 0.5)
+                            discard;
+
+                        float intensity =
+                            pow(
+                                1.0 -
+                                (dist * 2.0),
+                                1.8
+                            );
+
+                        vec3 finalColor =
+                            vColor *
+                            intensity *
+                            1.5;
+
+                        gl_FragColor =
+                            vec4(
+                                finalColor,
+                                intensity
+                            );
+
+                    }
+
+                `,
+
+
+                transparent: true,
+
+                blending:
+                    THREE.AdditiveBlending,
+
+                depthWrite: false
+
+            });
+
+
+        particleSystem =
+            new THREE.Points(
+                particleGeometry,
+                particleMaterial
+            );
+
+
+        scene.add(
+            particleSystem
+        );
+
+    }
+
+
+    // =========================================
+    // SHAPES
+    // =========================================
+
+    function generateGalaxyPositions(arr) {
+
+        const count =
+            CONFIG.particleCount;
+
+        const arms = 4;
+
+
+        for (
+            let i = 0;
+            i < count;
+            i++
+        ) {
+
+            const r =
+                Math.pow(
+                    Math.random(),
+                    2.0
+                ) *
+                280 +
+                10;
+
+
+            const armAngle =
+                (i % arms) *
+                (
+                    (2 * Math.PI) /
+                    arms
+                );
+
+
+            const spiralAngle =
+                r *
+                0.025;
+
+
+            const angle =
+                armAngle +
+                spiralAngle;
+
+
+            const randomOffset = 18;
+
+
+            arr[i * 3] =
+                Math.cos(angle) *
+                r +
+                (Math.random() - 0.5) *
+                randomOffset;
+
+
+            arr[i * 3 + 1] =
+                (Math.random() - 0.5) *
+                (randomOffset * 0.8);
+
+
+            arr[i * 3 + 2] =
+                Math.sin(angle) *
+                r +
+                (Math.random() - 0.5) *
+                randomOffset;
+
+        }
+
+    }
+
+
+    function generateVortexPositions(arr) {
+
+        const count =
+            CONFIG.particleCount;
+
+
+        for (
+            let i = 0;
+            i < count;
+            i++
+        ) {
+
+            const u =
+                Math.random();
+
+
+            const height =
+                (u - 0.5) *
+                500;
+
+
+            const radius =
+                Math.abs(height) *
+                0.4 +
+                15 +
+                Math.random() *
+                20;
+
+
+            const angle =
+                i *
+                0.1;
+
+
+            arr[i * 3] =
+                Math.cos(angle) *
+                radius;
+
+
+            arr[i * 3 + 1] =
+                height;
+
+
+            arr[i * 3 + 2] =
+                Math.sin(angle) *
+                radius;
+
+        }
+
+    }
+
+
+    function generateDNAPositions(arr) {
+
+        const count =
+            CONFIG.particleCount;
+
+        const length = 450;
+
+
+        for (
+            let i = 0;
+            i < count;
+            i++
+        ) {
+
+            const percent =
+                i / count;
+
+
+            const y =
+                (percent - 0.5) *
+                length;
+
+
+            const strand =
+                i % 2 === 0
+                    ? 0
+                    : Math.PI;
+
+
+            const angle =
+                percent *
+                Math.PI *
+                16 +
+                strand;
+
+
+            const radius = 60;
+
+
+            const isBridge =
+                Math.random() < 0.25;
+
+
+            const r =
+                isBridge
+                    ? radius *
+                      Math.random()
+                    : radius +
+                      (
+                          Math.random() -
+                          0.5
+                      ) *
+                      8;
+
+
+            arr[i * 3] =
+                Math.cos(angle) *
+                r;
+
+
+            arr[i * 3 + 1] =
+                y;
+
+
+            arr[i * 3 + 2] =
+                Math.sin(angle) *
+                r;
+
+        }
+
+    }
+
+
+    function generateCubePositions(arr) {
+
+        const count =
+            CONFIG.particleCount;
+
+        const size = 260;
+
+
+        for (
+            let i = 0;
+            i < count;
+            i++
+        ) {
+
+            arr[i * 3] =
+                (Math.random() - 0.5) *
+                size;
+
+
+            arr[i * 3 + 1] =
+                (Math.random() - 0.5) *
+                size;
+
+
+            arr[i * 3 + 2] =
+                (Math.random() - 0.5) *
+                size;
+
+        }
+
+    }
+
+
+    function generateHyperspacePositions(arr) {
+
+        const count =
+            CONFIG.particleCount;
+
+        const radius = 90;
+
+        const length = 1200;
+
+
+        for (
+            let i = 0;
+            i < count;
+            i++
+        ) {
+
+            const z =
+                (Math.random() - 0.5) *
+                length;
+
+
+            const angle =
+                Math.random() *
+                Math.PI *
+                2;
+
+
+            const r =
+                radius +
+                (Math.random() - 0.5) *
+                30;
+
+
+            arr[i * 3] =
+                Math.cos(angle) *
+                r;
+
+
+            arr[i * 3 + 1] =
+                Math.sin(angle) *
+                r;
+
+
+            arr[i * 3 + 2] =
+                z;
+
+        }
+
+    }
+
+
+    // =========================================
+    // MODE SWITCHING
+    // =========================================
+
+    function switchMode(newMode) {
+
+        currentMode =
+            newMode;
+
+
+        const targetAttr =
+            particleGeometry
+                .attributes
+                .targetPosition;
+
+
+        const targetArray =
+            targetAttr.array;
+
+
+        switch (newMode) {
+
+            case 'GALAXY':
+
+                generateGalaxyPositions(
+                    targetArray
+                );
+
+                break;
+
+
+            case 'VORTEX':
+
+                generateVortexPositions(
+                    targetArray
+                );
+
+                break;
+
+
+            case 'DNA':
+
+                generateDNAPositions(
+                    targetArray
+                );
+
+                break;
+
+
+            case 'MATRIX':
+
+                generateCubePositions(
+                    targetArray
+                );
+
+                break;
+
+
+            case 'HYPERSPACE':
+
+                generateHyperspacePositions(
+                    targetArray
+                );
+
+                break;
+
+        }
+
+
+        targetAttr.needsUpdate = true;
+
+
+        playSynthPitches(
+            newMode
+        );
+
+    }
+
+
+    // =========================================
+    // COLORS
+    // =========================================
+
+    function updateColors() {
+
+        const palette =
+            PALETTES[
+                CONFIG.colorPalette
+            ];
+
+
+        const colorAttr =
+            particleGeometry
+                .attributes
+                .customColor;
+
+
+        const colorArray =
+            colorAttr.array;
+
+
+        const count =
+            CONFIG.particleCount;
+
+
+        for (
+            let i = 0;
+            i < count;
+            i++
+        ) {
+
+            const color =
+                palette[
+                    Math.floor(
+                        Math.random() *
+                        palette.length
+                    )
+                ];
+
+
+            colorArray[i * 3] =
+                color.r;
+
+
+            colorArray[i * 3 + 1] =
+                color.g;
+
+
+            colorArray[i * 3 + 2] =
+                color.b;
+
+        }
+
+
+        colorAttr.needsUpdate = true;
+
+    }
+
+
+    // =========================================
+    // AUDIO
+    // =========================================
+
+    function initAudioEngine() {
+
+        if (audioCtx)
+            return;
+
+
+        try {
+
+            const AudioContext =
+                window.AudioContext ||
+                window.webkitAudioContext;
+
+
+            audioCtx =
+                new AudioContext();
+
+
+            masterGain =
+                audioCtx.createGain();
+
+
+            masterGain.gain.setValueAtTime(
+                0.2,
+                audioCtx.currentTime
+            );
+
+
+            filterNode =
+                audioCtx.createBiquadFilter();
+
+
+            filterNode.type =
+                "lowpass";
+
+
+            filterNode.frequency.setValueAtTime(
+                800,
+                audioCtx.currentTime
+            );
+
+
+            analyser =
+                audioCtx.createAnalyser();
+
+
+            analyser.fftSize = 64;
+
+
+            audioDataArray =
+                new Uint8Array(
+                    analyser.frequencyBinCount
+                );
+
+
+            masterGain.connect(
+                filterNode
+            );
+
+
+            filterNode.connect(
+                analyser
+            );
+
+
+            analyser.connect(
+                audioCtx.destination
+            );
+
+
+            CONFIG.audioReactive =
+                true;
+
+
+            updateAudioUI(true);
+
+        }
+
+        catch (e) {
+
+            console.warn(
+                "Web Audio API not supported",
+                e
+            );
+
+        }
+
+    }
+
+
+    function updateAudioUI(enabled) {
+
+        const statusText =
+            document.getElementById(
+                'audio-status'
+            );
+
+
+        const icon =
+            document.getElementById(
+                'audio-icon'
+            );
+
+
+        if (enabled) {
+
+            statusText.innerText =
+                "AUDIO SYNTH: ACTIVE";
+
+
+            statusText.classList.add(
+                "glow-text"
+            );
+
+
+            icon.className =
+                "fa-solid fa-volume-high text-purple-400";
+
+        }
+
+        else {
+
+            statusText.innerText =
+                "AUDIO SYNTH: OFF";
+
+
+            statusText.classList.remove(
+                "glow-text"
+            );
+
+
+            icon.className =
+                "fa-solid fa-volume-xmark text-pink-500";
+
+        }
+
+    }
+
+
+    function triggerShockwaveSound() {
+
+        if (!audioCtx)
+            return;
+
+
+        const osc =
+            audioCtx.createOscillator();
+
+
+        const gain =
+            audioCtx.createGain();
+
+
+        osc.type =
+            "sine";
+
+
+        osc.frequency.setValueAtTime(
+            160,
+            audioCtx.currentTime
+        );
+
+
+        osc.frequency.exponentialRampToValueAtTime(
+            30,
+            audioCtx.currentTime +
+            0.5
+        );
+
+
+        gain.gain.setValueAtTime(
+            0.5,
+            audioCtx.currentTime
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audioCtx.currentTime +
+            0.5
+        );
+
+
+        osc.connect(gain);
+
+        gain.connect(masterGain);
+
+
+        osc.start();
+
+        osc.stop(
+            audioCtx.currentTime +
+            0.5
+        );
+
+    }
+
+
+    function playSynthPitches(mode) {
+
+        if (!audioCtx)
+            return;
+
+
+        const freqs = {
+
+            GALAXY: 220,
+
+            VORTEX: 330,
+
+            DNA: 440,
+
+            MATRIX: 550,
+
+            HYPERSPACE: 660
+
+        };
+
+
+        const osc =
+            audioCtx.createOscillator();
+
+
+        const gain =
+            audioCtx.createGain();
+
+
+        osc.type =
+            "triangle";
+
+
+        osc.frequency.setValueAtTime(
+            freqs[mode] || 220,
+            audioCtx.currentTime
+        );
+
+
+        gain.gain.setValueAtTime(
+            0.15,
+            audioCtx.currentTime
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            audioCtx.currentTime +
+            0.6
+        );
+
+
+        osc.connect(gain);
+
+        gain.connect(masterGain);
+
+
+        osc.start();
+
+        osc.stop(
+            audioCtx.currentTime +
+            0.6
+        );
+
+    }
+
+
+    // =========================================
+    // GUI
+    // =========================================
+
+    function setupGUI() {
+
+        /*
+         * Instead of leaving dat.GUI visible,
+         * create a small invisible hover zone.
+         */
+
+        const guiZone =
+            document.createElement(
+                'div'
+            );
+
+
+        guiZone.id =
+            'void-gui-zone';
+
+
+        document.body.appendChild(
+            guiZone
+        );
+
+
+        const gui =
+            new dat.GUI({
+
+                autoPlace: false,
+
+                width: 260
+
+            });
+
+
+        guiZone.appendChild(
+            gui.domElement
+        );
+
+
+        const fParticles =
+            gui.addFolder(
+                'Particle Dynamics'
+            );
+
+
+        fParticles
+            .add(
+                CONFIG,
+                'particleSize',
+                0.5,
+                6.0
+            )
+            .name('Size')
+            .onChange(v => {
+
+                particleMaterial
+                    .uniforms
+                    .uSize
+                    .value = v;
+
+            });
+
+
+        fParticles
+            .add(
+                CONFIG,
+                'morphSpeed',
+                0.005,
+                0.1
+            )
+            .name('Morph Rate');
+
+
+        fParticles
+            .add(
+                CONFIG,
+                'swirlSpeed',
+                0.0,
+                1.5
+            )
+            .name('Swirl Velocity');
+
+
+        fParticles
+            .add(
+                CONFIG,
+                'turbulence',
+                0.0,
+                1.0
+            )
+            .name('Turbulence');
+
+
+        fParticles.open();
+
+
+        const fPhysics =
+            gui.addFolder(
+                'Interaction'
+            );
+
+
+        fPhysics
+            .add(
+                CONFIG,
+                'forceRadius',
+                50,
+                400
+            )
+            .name('Force Field');
+
+
+        fPhysics
+            .add(
+                CONFIG,
+                'repulsionPower',
+                1.0,
+                20.0
+            )
+            .name('Repulsion');
+
+
+        const fAppearance =
+            gui.addFolder(
+                'Visual Palette'
+            );
+
+
+        fAppearance
+            .add(
+                CONFIG,
+                'colorPalette',
+                Object.keys(PALETTES)
+            )
+            .name('Palette')
+            .onChange(() => {
+
+                updateColors();
+
+            });
+
+
+        fAppearance.open();
+
+    }
+
+
+    // =========================================
+    // EVENTS
+    // =========================================
+
+    function setupEventListeners() {
+
+        window.addEventListener(
+            'resize',
+            onWindowResize
+        );
+
+
+        window.addEventListener(
+            'pointermove',
+            (e) => {
+
+                targetMouse.x =
+                    (
+                        e.clientX /
+                        window.innerWidth
+                    ) *
+                    2 -
+                    1;
+
+
+                targetMouse.y =
+                    -(
+                        e.clientY /
+                        window.innerHeight
+                    ) *
+                    2 +
+                    1;
+
+            }
+        );
+
+
+        window.addEventListener(
+            'pointerdown',
+            (e) => {
+
+                if (
+                    e.target.closest(
+                        '#ui-layer button'
+                    ) ||
+                    e.target.closest(
+                        '.dg'
+                    )
+                ) {
+
+                    return;
+
+                }
+
+
+                isMouseDown = true;
+
+
+                shockwaveTime = 0.0;
+
+
+                const vector =
+                    new THREE.Vector3(
+                        targetMouse.x,
+                        targetMouse.y,
+                        0.5
+                    );
+
+
+                vector.unproject(
+                    camera
+                );
+
+
+                const dir =
+                    vector
+                        .sub(
+                            camera.position
+                        )
+                        .normalize();
+
+
+                const distance =
+                    -camera.position.z /
+                    dir.z;
+
+
+                shockwaveCenter
+                    .copy(
+                        camera.position
+                    )
+                    .add(
+                        dir.multiplyScalar(
+                            distance
+                        )
+                    );
+
+
+                particleMaterial
+                    .uniforms
+                    .uShockwaveCenter
+                    .value
+                    .copy(
+                        shockwaveCenter
+                    );
+
+
+                document.body
+                    .classList
+                    .remove(
+                        'screen-shake'
+                    );
+
+
+                void document.body
+                    .offsetWidth;
+
+
+                document.body
+                    .classList
+                    .add(
+                        'screen-shake'
+                    );
+
+
+                if (
+                    CONFIG.audioReactive
+                ) {
+
+                    triggerShockwaveSound();
+
+                }
+
+            }
+        );
+
+
+        window.addEventListener(
+            'pointerup',
+            () => {
+
+                isMouseDown = false;
+
+            }
+        );
+
+
+        document
+            .querySelectorAll(
+                '.mode-btn'
+            )
+            .forEach(
+                btn => {
+
+                    btn.addEventListener(
+                        'click',
+                        (e) => {
+
+                            document
+                                .querySelectorAll(
+                                    '.mode-btn'
+                                )
+                                .forEach(
+                                    b => {
+
+                                        b.classList
+                                            .remove(
+                                                'active'
+                                            );
+
+                                    }
+                                );
+
+
+                            const target =
+                                e.currentTarget;
+
+
+                            target.classList
+                                .add(
+                                    'active'
+                                );
+
+
+                            switchMode(
+                                target.dataset.mode
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+        // AUDIO BUTTON
+
+        document
+            .getElementById(
+                'audio-toggle-btn'
+            )
+            .addEventListener(
+                'click',
+                () => {
+
+                    if (!audioCtx) {
+
+                        initAudioEngine();
+
+                    }
+
+                    else if (
+                        audioCtx.state ===
+                        'suspended'
+                    ) {
+
+                        audioCtx.resume();
+
+                        CONFIG.audioReactive =
+                            true;
+
+                        updateAudioUI(true);
+
+                    }
+
+                    else if (
+                        audioCtx.state ===
+                        'running'
+                    ) {
+
+                        audioCtx.suspend();
+
+                        CONFIG.audioReactive =
+                            false;
+
+                        updateAudioUI(false);
+
+                    }
+
+                }
+            );
+
+
+        // FULLSCREEN
+
+        document
+            .getElementById(
+                'fullscreen-btn'
+            )
+            .addEventListener(
+                'click',
+                () => {
+
+                    if (
+                        !document.fullscreenElement
+                    ) {
+
+                        if (
+                            document
+                                .documentElement
+                                .requestFullscreen
+                        ) {
+
+                            document
+                                .documentElement
+                                .requestFullscreen();
+
+                        }
+
+                    }
+
+                    else {
+
+                        if (
+                            document.exitFullscreen
+                        ) {
+
+                            document
+                                .exitFullscreen();
+
+                        }
+
+                    }
+
+                }
+            );
+
+    }
+
+
+    // =========================================
+    // RESIZE
+    // =========================================
+
+    function onWindowResize() {
+
+        camera.aspect =
+            window.innerWidth /
+            window.innerHeight;
+
+
+        camera.updateProjectionMatrix();
+
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+    }
+
+
+    // =========================================
+    // ANIMATION
+    // =========================================
+
+    let frameCount = 0;
+
+    let lastFpsUpdate =
+        performance.now();
+
+
+    function animate() {
+
+        requestAnimationFrame(
+            animate
+        );
+
+
+        const delta =
+            clock.getDelta();
+
+
+        const time =
+            clock.getElapsedTime();
+
+
+        mouse.x +=
+            (
+                targetMouse.x -
+                mouse.x
+            ) *
+            0.08;
+
+
+        mouse.y +=
+            (
+                targetMouse.y -
+                mouse.y
+            ) *
+            0.08;
+
+
+        shockwaveTime +=
+            delta;
+
+
+        particleMaterial
+            .uniforms
+            .uShockwaveTime
+            .value =
+            shockwaveTime;
+
+
+        particleMaterial
+            .uniforms
+            .uTime
+            .value =
+            time;
+
+
+        // =====================================
+        // AUDIO
+        // =====================================
+
+        let audioEnergy = 0;
+
+
+        if (
+            CONFIG.audioReactive &&
+            analyser &&
+            audioDataArray
+        ) {
+
+            analyser.getByteFrequencyData(
+                audioDataArray
+            );
+
+
+            let sum = 0;
+
+
+            for (
+                let i = 0;
+                i < audioDataArray.length;
+                i++
+            ) {
+
+                sum +=
+                    audioDataArray[i];
+
+            }
+
+
+            audioEnergy =
+                (
+                    sum /
+                    audioDataArray.length
+                ) /
+                255.0;
+
+
+            particleMaterial
+                .uniforms
+                .uAudioEnergy
+                .value =
+                audioEnergy *
+                CONFIG.audioSensitivity;
+
+
+            const bars =
+                document.querySelectorAll(
+                    '.pulse-bar'
+                );
+
+
+            bars.forEach(
+                (bar, idx) => {
+
+                    const val =
+                        audioDataArray[
+                            idx * 2
+                        ] ||
+                        10;
+
+
+                    bar.style.height =
+                        `${Math.max(
+                            4,
+                            (val / 255) *
+                            32
+                        )}px`;
+
+                }
+            );
+
+
+            const energy =
+                document.getElementById(
+                    'energy-level'
+                );
+
+
+            if (energy) {
+
+                if (
+                    audioEnergy >
+                    0.7
+                ) {
+
+                    energy.innerText =
+                        'OVERLOAD';
+
+                }
+
+                else if (
+                    audioEnergy >
+                    0.35
+                ) {
+
+                    energy.innerText =
+                        'HIGH';
+
+                }
+
+                else {
+
+                    energy.innerText =
+                        'STABLE';
+
+                }
+
+            }
+
+        }
+
+
+        // =====================================
+        // PARTICLE PHYSICS
+        // =====================================
+
+        const posAttr =
+            particleGeometry
+                .attributes
+                .position;
+
+
+        const targetAttr =
+            particleGeometry
+                .attributes
+                .targetPosition;
+
+
+        const pos =
+            posAttr.array;
+
+
+        const target =
+            targetAttr.array;
+
+
+        const count =
+            CONFIG.particleCount;
+
+
+        const morphFactor =
+            CONFIG.morphSpeed;
+
+
+        const swirl =
+            CONFIG.swirlSpeed *
+            0.01;
+
+
+        const turb =
+            CONFIG.turbulence;
+
+
+        const mouse3D =
+            new THREE.Vector3(
+                mouse.x * 250,
+                mouse.y * 250,
+                0
+            );
+
+
+        for (
+            let i = 0;
+            i < count;
+            i++
+        ) {
+
+            const i3 =
+                i * 3;
+
+
+            // SWIRL
+
+            if (swirl > 0) {
+
+                const x =
+                    target[i3];
+
+
+                const z =
+                    target[i3 + 2];
+
+
+                const cos =
+                    Math.cos(swirl);
+
+
+                const sin =
+                    Math.sin(swirl);
+
+
+                target[i3] =
+                    x * cos -
+                    z * sin;
+
+
+                target[i3 + 2] =
+                    x * sin +
+                    z * cos;
+
+            }
+
+
+            let tx =
+                target[i3];
+
+
+            let ty =
+                target[i3 + 1];
+
+
+            let tz =
+                target[i3 + 2];
+
+
+            // TURBULENCE
+
+            if (turb > 0) {
+
+                tx +=
+                    Math.sin(
+                        time * 2.0 +
+                        i
+                    ) *
+                    turb *
+                    4.0;
+
+
+                ty +=
+                    Math.cos(
+                        time * 1.5 +
+                        i
+                    ) *
+                    turb *
+                    4.0;
+
+            }
+
+
+            pos[i3] +=
+                (
+                    tx -
+                    pos[i3]
+                ) *
+                morphFactor;
+
+
+            pos[i3 + 1] +=
+                (
+                    ty -
+                    pos[i3 + 1]
+                ) *
+                morphFactor;
+
+
+            pos[i3 + 2] +=
+                (
+                    tz -
+                    pos[i3 + 2]
+                ) *
+                morphFactor;
+
+
+            // MOUSE REPULSION
+
+            const dx =
+                pos[i3] -
+                mouse3D.x;
+
+
+            const dy =
+                pos[i3 + 1] -
+                mouse3D.y;
+
+
+            const dz =
+                pos[i3 + 2] -
+                mouse3D.z;
+
+
+            const distSq =
+                dx * dx +
+                dy * dy +
+                dz * dz;
+
+
+            const radSq =
+                CONFIG.forceRadius *
+                CONFIG.forceRadius;
+
+
+            if (
+                distSq <
+                radSq &&
+                distSq >
+                0
+            ) {
+
+                const dist =
+                    Math.sqrt(
+                        distSq
+                    );
+
+
+                const force =
+                    (
+                        1.0 -
+                        dist /
+                        CONFIG.forceRadius
+                    ) *
+                    CONFIG.repulsionPower;
+
+
+                pos[i3] +=
+                    (
+                        dx /
+                        dist
+                    ) *
+                    force *
+                    5.0;
+
+
+                pos[i3 + 1] +=
+                    (
+                        dy /
+                        dist
+                    ) *
+                    force *
+                    5.0;
+
+
+                pos[i3 + 2] +=
+                    (
+                        dz /
+                        dist
+                    ) *
+                    force *
+                    5.0;
+
+            }
+
+        }
+
+
+        posAttr.needsUpdate =
+            true;
+
+
+        // =====================================
+        // CAMERA / ORBIT
+        // =====================================
+
+        particleSystem.rotation.y =
+            time *
+            0.05;
+
+
+        particleSystem.rotation.x =
+            Math.sin(
+                time *
+                0.03
+            ) *
+            0.1;
+
+
+        // =====================================
+        // RENDER
+        // =====================================
+
+        renderer.render(
+            scene,
+            camera
+        );
+
+
+        // =====================================
+        // FPS
+        // =====================================
+
+        frameCount++;
+
+
+        const now =
+            performance.now();
+
+
+        if (
+            now -
+            lastFpsUpdate >=
+            500
+        ) {
+
+            const fps =
+                Math.round(
+                    (
+                        frameCount *
+                        1000
+                    ) /
+                    (
+                        now -
+                        lastFpsUpdate
+                    )
+                );
+
+
+            document
+                .getElementById(
+                    'fps-counter'
+                )
+                .innerText =
+                fps;
+
+
+            frameCount = 0;
+
+
+            lastFpsUpdate =
+                now;
+
+        }
+
+    }
+
+
+    // =========================================
+    // START
+    // =========================================
+
+    window.onload = () => {
+
+        initEngine();
+
+    };
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>The Void</title>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: radial-gradient(circle, #1a1a1a, black 70%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+           font-family: monospace;
+           transition: 5s;
+           background: radial-gradient(circle, #222 0%, #050505 70%);
+        }
+
+       h1 {
+    font-size: 100px;
+    letter-spacing: -5px;
+    text-shadow: 0 0 20px white;
+    animation: pulse 2s infinite alternate;
+    transition: 2s;
+}
+
+@keyframes pulse {
+    from {
+        text-shadow: 0 0 10px white;
+    }
+
+    to {
+        text-shadow: 0 0 40px white;
+    }
+}
+h1:hover {
+    letter-spacing: 5px;
+    text-shadow:
+        0 0 10px white,
+        0 0 30px white,
+        0 0 60px white;
+}
+.subtitle {
+    font-size: 16px;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    opacity: 0.5;
+}
+button {
+    margin-top: 30px;
+    padding: 15px 40px;
+    background: transparent;
+    color: white;
+    border: 1px solid white;
+    font-family: monospace;
+    letter-spacing: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: white;
+    color: black;
+    box-shadow: 0 0 30px white;
+}
+#secret {
+    font-size: 50px;
+    letter-spacing: 10px;
+    text-shadow: 0 0 20px white;
+    transition: 2s;
+    animation: secretPulse 2s infinite alternate;
+    transform: translateY(100px) scale(0.5);
+}
+@keyframes secretPulse {
+    from {
+        text-shadow: 0 0 10px white;
+    }
+
+    to {
+        text-shadow: 0 0 40px white;
+    }
+}
+#portal {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    background: radial-gradient(circle, #000 0%, #111 40%, transparent 70%);
+    box-shadow:
+        0 0 20px white,
+        0 0 60px white,
+        0 0 120px #555;
+    position: absolute;
+    opacity: 0;
+    transition: 2s;
+    pointer-events: none;
+    animation: portalSpin 8s linear infinite;
+}
+
+#portalInner {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 1px solid white;
+    box-shadow:
+        0 0 15px white,
+        0 0 40px #555;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+@keyframes portalSpin {
+    from {
+        transform: rotate(0deg) scale(1);
+    }
+
+    to {
+        transform: rotate(360deg) scale(1.15);
+    }
+}
+.void-transition {
+    animation: voidExit 1.2s ease forwards;
+}
+
+@keyframes voidExit {
+    0% {
+        opacity: 1;
+        filter: blur(0);
+    }
+
+    60% {
+        opacity: 0.7;
+        filter: blur(4px);
+    }
+
+    100% {
+        opacity: 0;
+        filter: blur(12px);
+    }
+}
+
+    </style>
+</head>
+
+<body>
+   <div id="portal">
+    <div id="portalInner"></div>
+</div>
+
+  <h1 id="title">YOU SHOULDN'T BE HERE.</h1>
+
+ <p id="subtitle" class="subtitle">Something is waiting.</p>
+<button id="enterBtn" type="button" onclick="window.location.href='ha.html'">
+    ENTER
+</button>
+
+<script>
+function enterVoid() {
+    document.body.classList.add("void-transition");
+
+    setTimeout(() => {
+        window.location.href = "quantum-cosmos.html";
+    }, 1200);
+}
+</script>
+<script>
+document.getElementById("enterCosmos").addEventListener("click", () => {
+    document.body.classList.add("cosmos-transition");
+
+    setTimeout(() => {
+        window.location.href = "quantum.html";
+    }, 1200);
+});
+</script>
+
+<style>
+.cosmos-transition {
+    animation: voidCollapse 1.2s ease-in forwards;
+}
+
+@keyframes voidCollapse {
+    0% {
+        opacity: 1;
+        filter: blur(0);
+    }
+
+    60% {
+        opacity: 0.7;
+        filter: blur(5px);
+    }
+
+    100% {
+        opacity: 0;
+        filter: blur(20px);
+    }
+}
+</style>
+ <h2 id="secret" style="opacity: 0;">WELCOME TO THE VOID</h2>
+
+<script>
+  function enterVoid() {
+    document.body.style.background = "radial-gradient(circle, #222 0%, #050505 70%)";
+    document.body.style.color = "white";
+
+    document.getElementById("title").style.opacity = "0";
+    document.getElementById("subtitle").style.opacity = "0";
+    document.getElementById("enterButton").style.opacity = "0";
+
+    document.getElementById("secret").style.opacity = "1";
+    document.getElementById("secret").style.transform = "translateY(0) scale(1)";
+
+    document.getElementById("portal").style.opacity = "1";
+}
+
+    
+</script>
+
+</body>
+</html>
+
+</body>
+</html>
